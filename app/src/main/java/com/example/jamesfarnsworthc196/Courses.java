@@ -4,13 +4,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import Database.Course;
 import Database.DatabaseHelper;
@@ -24,6 +32,7 @@ public class Courses extends AppCompatActivity {
     private RecyclerView recyclerView;
     private DatabaseHelper db;
     private Context context = this;
+    private List<Term> termsList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,5 +66,84 @@ public class Courses extends AppCompatActivity {
         }));
 
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_terms, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        termsList.addAll(db.getAllTerms());
+        ListIterator<Term> termsListIterator = termsList.listIterator();
+        List<Integer> termIds = new ArrayList<>();
+        int largestTermId = 0;
+        ListIterator<Integer> termIdsIterator;
+
+        switch(item.getItemId()){
+            case R.id.create:
+                LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
+                View view = layoutInflater.inflate(R.layout.coursesave,null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Courses.this);
+                alertDialogBuilder.setView(view);
+
+                final EditText startDate = view.findViewById(R.id.editCourseStart);
+                final EditText endDate = view.findViewById(R.id.editCourseEnd);
+                final EditText courseName = view.findViewById(R.id.editCourseName);
+                final EditText courseStatus = view.findViewById(R.id.editCourseStatus);
+                final EditText courseNote = view.findViewById(R.id.editCourseNote);
+                final EditText courseTermId = view.findViewById(R.id.editCourseTermId);
+
+
+                while(termsListIterator.hasNext()){
+                    Term term = termsListIterator.next();
+                    termIds.add(term.getId());
+                }
+                termIdsIterator = termIds.listIterator();
+
+                while(termIdsIterator.hasNext()){
+                  int nextVal = termIdsIterator.next();
+                    if( nextVal > largestTermId){
+                        largestTermId = nextVal;
+                    }
+                }
+
+                courseName.setText("Course Name");
+                startDate.setText("Start Date");
+                endDate.setText("End Date");
+                courseStatus.setText("Status");
+                courseNote.setText("I am a note");
+                courseTermId.setText("Choose term ID between " +termIds.get(0)+" " + largestTermId);
+
+                alertDialogBuilder.setCancelable(true).setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Course newCourse = new Course();
+                        newCourse.setStartdate(startDate.getText().toString());
+                        newCourse.setEnddate(endDate.getText().toString());
+                        newCourse.setCoursename(courseName.getText().toString());
+                        newCourse.setStatus(courseStatus.getText().toString());
+                        newCourse.setNote(courseNote.getText().toString());
+                        newCourse.setTermid(Integer.parseInt(courseTermId.getText().toString()));
+                        db.insertCourse(newCourse.getStartdate(), newCourse.getEnddate(), newCourse.getCoursename(), newCourse.getNote(), newCourse.getStatus(), newCourse.getTermid());
+                        finish();
+                        startActivity(getIntent());
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

@@ -10,8 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".ViewSelectedAssessment" />
-        <activity android:name=".ViewSelectedCourse" android:parentActivityName=".Courses
-"><meta-data
+        <activity android:name=".ViewSelectedCourse" android:parentActivityName=".Courses"><meta-data
             android:name="android.support.PARENT_ACTIVITY"
             android:value=".Terms" /></activity>
         <activity android:name=".ViewSelectedTerm" android:parentActivityName=".Terms"><meta-data

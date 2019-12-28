@@ -61,4 +61,6 @@ public class ViewSelectedCourse extends AppCompatActivity {
         viewCourseStatus.setText(courseStatus);
         viewCourseNote.setText(courseNote);
     }
+
+
 }
