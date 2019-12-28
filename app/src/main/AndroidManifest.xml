@@ -9,13 +9,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".AddEditMentor"></activity>
-        <activity android:name=".AddEditAssessment" />
-        <activity android:name=".ViewSelectedMentor" />
-        <activity android:name=".AddEditCourse" />
-        <activity android:name=".AddEditTerm" />
         <activity android:name=".ViewSelectedAssessment" />
-        <activity android:name=".ViewSelectedCourse" />
+        <activity android:name=".ViewSelectedCourse" android:parentActivityName=".Courses
+"><meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".Terms" /></activity>
         <activity android:name=".ViewSelectedTerm" android:parentActivityName=".Terms"><meta-data
             android:name="android.support.PARENT_ACTIVITY"
             android:value=".Terms" /></activity>

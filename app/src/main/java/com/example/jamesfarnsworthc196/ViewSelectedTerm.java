@@ -1,10 +1,12 @@
 package com.example.jamesfarnsworthc196;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,7 +74,39 @@ public class ViewSelectedTerm extends AppCompatActivity {
             case R.id.save:
                 // open dialog box with prepop data
                 LayoutInflater  layoutInflaterSave = LayoutInflater.from(getApplicationContext());
-                View alertDialogViewTermSave = 
+                View alertDialogViewTermSave = layoutInflaterSave.inflate(R.layout.termsave, null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ViewSelectedTerm.this);
+                alertDialogBuilder.setView(alertDialogViewTermSave);
+
+                final EditText startDate = alertDialogViewTermSave.findViewById(R.id.editStart);
+                final EditText endDate = alertDialogViewTermSave.findViewById(R.id.editEnd);
+                final EditText termName = alertDialogViewTermSave.findViewById(R.id.editTermName);
+
+                startDate.setText(term.getStartdate());
+                endDate.setText(term.getEnddate());
+                termName.setText(term.getTermname());
+
+                alertDialogBuilder.setCancelable(true).setPositiveButton("save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        term.setStartdate(startDate.getText().toString());
+                        term.setEnddate(endDate.getText().toString());
+                        term.setTermname(termName.getText().toString());
+                        db.updateTerm(term);
+                        //reload activity
+                        finish();
+                        startActivity(getIntent());
+                    }
+                }).setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
                 // capture data and save
                 // close dialog box
                 Toast.makeText(context, "save", Toast.LENGTH_SHORT).show();
@@ -81,13 +116,6 @@ public class ViewSelectedTerm extends AppCompatActivity {
                 db.deleteTerm(term);
                 // redirect to the parent activity
                 Toast.makeText(context, "delete", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.create:
-                //open dialog box with input fields for new term
-                // capture user input
-                // save or cancel
-                // redirect to parent terms list
-                Toast.makeText(context, "create", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

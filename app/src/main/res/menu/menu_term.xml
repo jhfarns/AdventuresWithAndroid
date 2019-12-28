@@ -12,9 +12,4 @@
         android:title="delete"
         app:showAsAction="ifRoom" />
 
-    <item android:id="@+id/create"
-        android:icon="@drawable/ic_add_black_24dp"
-        android:title="create"
-        app:showAsAction="ifRoom" />
-
 </menu>

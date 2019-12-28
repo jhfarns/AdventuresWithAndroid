@@ -5,10 +5,18 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Layout;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -48,6 +56,7 @@ public class Terms extends AppCompatActivity {
                 // pass the database with an intent
                 Intent viewTerm = new Intent(context, ViewSelectedTerm.class);
                 viewTerm.putExtra("selectedTermId", termsList.get(position).getId());
+                int test = termsList.get(position).getId();
                 startActivity(viewTerm);
             }
             @Override
@@ -55,5 +64,55 @@ public class Terms extends AppCompatActivity {
             }
         }));
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_terms, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch(item.getItemId()){
+            case R.id.create:
+                LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
+                View view = layoutInflater.inflate(R.layout.termsave,null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Terms.this);
+                alertDialogBuilder.setView(view);
+
+                final EditText startDate = view.findViewById(R.id.editStart);
+                final EditText endDate = view.findViewById(R.id.editEnd);
+                final EditText termName = view.findViewById(R.id.editTermName);
+
+                termName.setText("Term Name");
+                startDate.setText("Start Date");
+                endDate.setText("End Date");
+
+                alertDialogBuilder.setCancelable(true).setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Term newTerm = new Term();
+                        newTerm.setStartdate(startDate.getText().toString());
+                        newTerm.setEnddate(endDate.getText().toString());
+                        newTerm.setTermname(termName.getText().toString());
+                        db.insertTerm(newTerm.getStartdate(), newTerm.getEnddate(), newTerm.getTermname());
+                        finish();
+                        startActivity(getIntent());
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
