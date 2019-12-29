@@ -116,6 +116,8 @@ public class ViewSelectedTerm extends AppCompatActivity {
                 db.deleteTerm(term);
                 // redirect to the parent activity
                 Toast.makeText(context, "delete", Toast.LENGTH_SHORT).show();
+                Intent courseIntent = new Intent(context, Terms.class);
+                startActivity(courseIntent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
