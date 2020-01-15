@@ -22,6 +22,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import Database.Course;
 import Database.DatabaseHelper;
 import Database.RecyclerTouchListener;
 import Database.Term;

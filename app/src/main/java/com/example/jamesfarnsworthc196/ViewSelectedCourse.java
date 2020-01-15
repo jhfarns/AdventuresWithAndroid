@@ -63,12 +63,19 @@ public class ViewSelectedCourse extends AppCompatActivity {
         TextView viewCourseName = findViewById(R.id.selectedCourseName);
         TextView viewCourseStatus = findViewById(R.id.selectedCourseStatus);
         TextView viewCourseNote = findViewById(R.id.selectedCourseNote);
+        TextView viewCourseMentor = findViewById(R.id.selectedCourseMentor);
+        TextView viewCourseMentorNumber = findViewById(R.id.selectedCourseMentorNumber);
+        TextView viewCourseMentorEmail = findViewById(R.id.selectedCourseMentorEmail);
+
 
         viewStartDate.setText(startDate);
         viewEndDate.setText(endDate);
         viewCourseName.setText(courseName);
         viewCourseStatus.setText(courseStatus);
         viewCourseNote.setText(courseNote);
+        viewCourseMentor.setText("Jenny Mentor");
+        viewCourseMentorNumber.setText("555-555-5555");
+        viewCourseMentorEmail.setText("JMentor@ImaHelpYou.com");
     }
 
     @Override

@@ -27,6 +27,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db){
         db.execSQL(Term.CREATE_TABLE);
         db.execSQL(Course.CREATE_TABLE);
+        db.execSQL(Assessment.CREATE_TABLE);
 
         ContentValues initVals = new ContentValues();
         initVals.put(Term.COLUMN_START, "start1");
@@ -72,6 +73,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         initVals6.put(Course.COLUMN_STATUS, "finished");
         initVals6.put(Course.COLUMN_NOTE, "this is a note");
         db.insert(Course.TABLE_NAME, null, initVals6);
+
+        ContentValues initVals7 = new ContentValues();
+        initVals7.put(Assessment.COLUMN_NAME, "assessment");
+        initVals7.put(Assessment.COLUMN_TYPE, "objective");
+        initVals7.put(Assessment.COLUMN_DATE, "somedate");
+        initVals7.put(Assessment.COLUMN_COURSE_ID, 1);
+        db.insert(Assessment.TABLE_NAME, null, initVals7);
+
+        ContentValues initVals8 = new ContentValues();
+        initVals8.put(Assessment.COLUMN_NAME, "assessment2");
+        initVals8.put(Assessment.COLUMN_TYPE, "objective2");
+        initVals8.put(Assessment.COLUMN_DATE, "somedate2");
+        initVals8.put(Assessment.COLUMN_COURSE_ID, 2);
+        db.insert(Assessment.TABLE_NAME, null, initVals8);
+
+        ContentValues initVals9 = new ContentValues();
+        initVals9.put(Assessment.COLUMN_NAME, "assessment3");
+        initVals9.put(Assessment.COLUMN_TYPE, "objective3");
+        initVals9.put(Assessment.COLUMN_DATE, "somedate3");
+        initVals9.put(Assessment.COLUMN_COURSE_ID, 3);
+        db.insert(Assessment.TABLE_NAME, null, initVals9);
     }
 
     @Override
@@ -79,6 +101,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Drop older table if existed
         db.execSQL("DROP TABLE IF EXISTS " + Term.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + Course.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Assessment.TABLE_NAME);
 
         // Create tables again
         onCreate(db);
@@ -114,6 +137,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return id;
     }
+
+    public long insertAssessment(String type, String name, String date, int courseId ){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        values.put(Assessment.COLUMN_TYPE, type);
+        values.put(Assessment.COLUMN_NAME, name);
+        values.put(Assessment.COLUMN_DATE, date);
+        values.put(Assessment.COLUMN_COURSE_ID, courseId);
+
+        long id = db.insert(Assessment.TABLE_NAME, null, values);
+
+        return id;
+    }
+
 
     public Term getTerm(long id) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -158,6 +197,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
 
         return course;
+    }
+
+    public Assessment getAssessment(long id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(Assessment.TABLE_NAME,
+                new String[]{Assessment.COLUMN_ID, Assessment.COLUMN_TYPE, Assessment.COLUMN_NAME, Assessment.COLUMN_DATE, Assessment.COLUMN_COURSE_ID},
+                Assessment.COLUMN_ID + "=?",
+                new String[]{String.valueOf(id)}, null, null, null, null);
+
+        if (cursor != null) {
+            Boolean statement = cursor.moveToFirst();
+        }
+
+        Assessment assessment = new Assessment(
+                cursor.getInt(cursor.getColumnIndex(Assessment.COLUMN_ID)),
+                cursor.getInt(cursor.getColumnIndex(Assessment.COLUMN_COURSE_ID)),
+                cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_NAME)),
+                cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_TYPE)),
+                cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_DATE))
+
+        );
+
+        return assessment;
     }
 
     public List<Term> getAllTerms() {
@@ -216,6 +279,62 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return courses;
     }
 
+    public List<Course> getAllAssociatedCourses(int termID) {
+        List<Course> courses = new ArrayList<>();
+
+        String selectQuery = "SELECT * FROM " + Course.TABLE_NAME + "WHERE termid = ?";
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM courses WHERE termid = ?", new String[] {Integer.toString(termID)});
+
+        if(cursor.moveToFirst()) {
+            do {
+                Course course = new Course();
+                course.setStartdate(cursor.getString(cursor.getColumnIndex(Course.COLUMN_START)));
+                course.setEnddate(cursor.getString(cursor.getColumnIndex(Course.COLUMN_END)));
+                course.setCoursename(cursor.getString(cursor.getColumnIndex(Course.COLUMN_NAME)));
+                course.setNote(cursor.getString(cursor.getColumnIndex(Course.COLUMN_NOTE)));
+                course.setStatus(cursor.getString(cursor.getColumnIndex(Course.COLUMN_STATUS)));
+                course.setTermid(cursor.getInt(cursor.getColumnIndex(Course.COLUMN_TERM_ID)));
+                course.setId(cursor.getInt(cursor.getColumnIndex(Course.COLUMN_ID)));
+
+                courses.add(course);
+
+            } while(cursor.moveToNext());
+        }
+
+        db.close();
+
+        return courses;
+    }
+
+    public List<Assessment> getAllAssessments() {
+        List<Assessment> assessments = new ArrayList<>();
+
+        String selectQuery = "SELECT * FROM " + Assessment.TABLE_NAME + " ORDER BY " + Assessment.COLUMN_ID;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if(cursor.moveToFirst()) {
+            do {
+                Assessment assessment = new Assessment();
+                assessment.setType(cursor.getString(cursor.getColumnIndex(assessment.COLUMN_TYPE)));
+                assessment.setName(cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_NAME)));
+                assessment.setDate(cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_DATE)));
+                assessment.setCourseId(cursor.getInt(cursor.getColumnIndex(Assessment.COLUMN_COURSE_ID)));
+                assessment.setId(cursor.getInt(cursor.getColumnIndex(Assessment.COLUMN_ID)));
+
+                assessments.add(assessment);
+
+            } while(cursor.moveToNext());
+        }
+
+        db.close();
+
+        return assessments;
+    }
+
     public int getTermsCount() {
         String countQuery = "SELECT * FROM " + Term.TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -228,6 +347,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public int getCoursesCount() {
         String countQuery = "SELECT * FROM " + Course.TABLE_NAME;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+
+        int count = cursor.getCount();
+
+        return count;
+    }
+
+    public int getAssessmentsCount() {
+        String countQuery = "SELECT * FROM " + Assessment.TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
 
@@ -264,6 +393,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[]{String.valueOf(course.getId())});
     }
 
+    public int updateAssessment(Assessment assessment){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        values.put(Assessment.COLUMN_TYPE, assessment.getType());
+        values.put(Assessment.COLUMN_NAME, assessment.getName());
+        values.put(Assessment.COLUMN_DATE, assessment.getDate());
+        values.put(Assessment.COLUMN_COURSE_ID, assessment.getCourseId());
+
+        return db.update(Assessment.TABLE_NAME, values, Assessment.COLUMN_ID + "=?",
+                new String[]{String.valueOf(assessment.getId())});
+    }
+
     public void deleteTerm(Term term){
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -275,6 +418,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         db.delete(Course.TABLE_NAME, Course.COLUMN_ID + "=?", new String[]{String.valueOf(course.getId())});
+        db.close();
+    }
+
+    public void deleteAssessment(Assessment assessment) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.delete(Assessment.TABLE_NAME, Assessment.COLUMN_ID + "=?", new String[]{String.valueOf(assessment.getId())});
         db.close();
     }
 }

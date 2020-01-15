@@ -1,11 +1,11 @@
 package Database;
 
 public class Term {
-    public static final String TABLE_NAME = "terms";
-    public static final String COLUMN_ID = "id";
-    public static final String COLUMN_START = "startdate";
-    public static final String COLUMN_END = "enddate";
-    public static final String COLUMN_NAME = "termname";
+        public static final String TABLE_NAME = "terms";
+        public static final String COLUMN_ID = "id";
+        public static final String COLUMN_START = "startdate";
+        public static final String COLUMN_END = "enddate";
+        public static final String COLUMN_NAME = "termname";
 
     private int id;
     private String startdate;

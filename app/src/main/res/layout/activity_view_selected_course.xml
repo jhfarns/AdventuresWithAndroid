@@ -21,14 +21,34 @@ android:layout_height="match_parent">
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_below="@id/selectedCourseStartDate" />
+
 <TextView
     android:id="@+id/selectedCourseStatus"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_below="@id/selectedCourseEndDate"  />
+
 <TextView
     android:id="@+id/selectedCourseNote"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_below="@id/selectedCourseStatus" />
+
+    <TextView
+        android:id="@+id/selectedCourseMentor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/selectedCourseNote" />
+
+    <TextView
+        android:id="@+id/selectedCourseMentorNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/selectedCourseMentor" />
+
+    <TextView
+        android:id="@+id/selectedCourseMentorEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/selectedCourseMentorNumber" />
 </RelativeLayout>
