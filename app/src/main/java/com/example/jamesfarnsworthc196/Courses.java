@@ -17,8 +17,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -114,9 +118,16 @@ public class Courses extends AppCompatActivity {
                     }
                 }
 
+                final
+                Calendar c = Calendar.getInstance();
+                final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+                String currentTime = sdf.format(c.getTime());
+
+                startDate.setText(currentTime);
+                endDate.setText(currentTime);
+
+
                 courseName.setText("Course Name");
-                startDate.setText("Start Date");
-                endDate.setText("End Date");
                 courseStatus.setText("Status");
                 courseNote.setText("I am a note");
                 courseTermId.setText("Choose term ID between " +termIds.get(0)+" " + largestTermId);
@@ -133,20 +144,48 @@ public class Courses extends AppCompatActivity {
                         newCourse.setTermid(Integer.parseInt(courseTermId.getText().toString()));
                         db.insertCourse(newCourse.getStartdate(), newCourse.getEnddate(), newCourse.getCoursename(), newCourse.getNote(), newCourse.getStatus(), newCourse.getTermid());
 
+                        // Goal: have start and end date create alarms
+                        // Implement the start date first:
+                        // Set up UI to mirror the current system time -- done
+                        // to add yyyy-mm-ddTHH:MM -- done
+                        // have the system get the input time from the system -- done
+
+                        String startTimeSet = startDate.getText().toString();
+                        String endTimeSet = endDate.getText().toString();
+                        try {
+                            c.setTime(sdf.parse(startTimeSet));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
                         AlarmManager alarm;
                         Intent alarmIntent;
                         PendingIntent pendingIntent;
                         // You may need to add these _ids to the database with the class so that it can be canceled...
                         // You are going to need to make two of these ids because of the start and end date...
-                        final int _id = (int) System.currentTimeMillis();
+                        int _id = (int) System.currentTimeMillis();
                         // for the calendar you are going
 
                         alarmIntent = new Intent(Courses.this, CreateCatcher.class);
-                        alarmIntent.putExtra("createBroadcastAlarm", "create");
+                        alarmIntent.putExtra("createBroadcastAlarm", newCourse.getCoursename() + " is starting today");
                         pendingIntent = PendingIntent.getBroadcast(Courses.this, _id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
                         alarm = (AlarmManager)getSystemService(ALARM_SERVICE);
-                        alarm.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+1000, pendingIntent);
+                        alarm.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pendingIntent);
+
+                        _id = (int) System.currentTimeMillis();
+                        alarmIntent = new Intent(Courses.this, CreateCatcher.class);
+                        alarmIntent.putExtra("createBroadcastAlarm", newCourse.getCoursename() + " is ending today");
+                        pendingIntent = PendingIntent.getBroadcast(Courses.this,_id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        try {
+                            c.setTime(sdf.parse(endTimeSet));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        alarm.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pendingIntent);
+
+
+
 
                         finish();
                         startActivity(getIntent());
