@@ -4,7 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -130,6 +132,22 @@ public class Courses extends AppCompatActivity {
                         newCourse.setNote(courseNote.getText().toString());
                         newCourse.setTermid(Integer.parseInt(courseTermId.getText().toString()));
                         db.insertCourse(newCourse.getStartdate(), newCourse.getEnddate(), newCourse.getCoursename(), newCourse.getNote(), newCourse.getStatus(), newCourse.getTermid());
+
+                        AlarmManager alarm;
+                        Intent alarmIntent;
+                        PendingIntent pendingIntent;
+                        // You may need to add these _ids to the database with the class so that it can be canceled...
+                        // You are going to need to make two of these ids because of the start and end date...
+                        final int _id = (int) System.currentTimeMillis();
+                        // for the calendar you are going
+
+                        alarmIntent = new Intent(Courses.this, CreateCatcher.class);
+                        alarmIntent.putExtra("createBroadcastAlarm", "create");
+                        pendingIntent = PendingIntent.getBroadcast(Courses.this, _id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                        alarm = (AlarmManager)getSystemService(ALARM_SERVICE);
+                        alarm.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+1000, pendingIntent);
+
                         finish();
                         startActivity(getIntent());
                     }
