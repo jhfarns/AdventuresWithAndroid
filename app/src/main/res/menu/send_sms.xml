@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/sendSend"
+        android:icon="@drawable/ic_send_black_24dp"
+        android:title="send"
+        app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/sendSave"
+        android:icon="@drawable/ic_save_black_24dp"
+        android:title="save"
+        app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/sendDelete"
+        android:icon="@drawable/ic_delete_black_24dp"
+        android:title="delete"
+        app:showAsAction="ifRoom" />
+
+</menu>

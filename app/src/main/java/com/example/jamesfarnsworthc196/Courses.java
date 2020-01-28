@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,6 +40,23 @@ public class Courses extends AppCompatActivity {
     private DatabaseHelper db;
     private Context context = this;
     private List<Term> termsList = new ArrayList<>();
+
+    public static boolean isNumeric(final String str) {
+
+        // null or empty
+        if (str == null || str.length() == 0) {
+            return false;
+        }
+
+        for (char c : str.toCharArray()) {
+            if (!Character.isDigit(c)) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,8 +136,9 @@ public class Courses extends AppCompatActivity {
                     }
                 }
 
-                final
-                Calendar c = Calendar.getInstance();
+                final int firstID = termIds.get(0);
+
+                final Calendar c = Calendar.getInstance();
                 final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
                 String currentTime = sdf.format(c.getTime());
 
@@ -140,8 +159,23 @@ public class Courses extends AppCompatActivity {
                         newCourse.setEnddate(endDate.getText().toString());
                         newCourse.setCoursename(courseName.getText().toString());
                         newCourse.setStatus(courseStatus.getText().toString());
-                        newCourse.setNote(courseNote.getText().toString());
-                        newCourse.setTermid(Integer.parseInt(courseTermId.getText().toString()));
+
+
+                        if (isNumeric(courseStatus.getText().toString())) {
+                            newCourse.setTermid(Integer.parseInt(courseTermId.getText().toString()));
+                        } else {
+                            newCourse.setTermid(firstID);
+                            Toast.makeText(context, "Value for term was not numeric. Adding to course ID " + firstID, Toast.LENGTH_LONG).show();
+                        }
+
+
+
+                        if (TextUtils.isEmpty(courseNote.getText().toString())){
+                            newCourse.setNote(" ");
+                        }else {
+                            newCourse.setNote(courseNote.getText().toString());
+                        }
+
                         db.insertCourse(newCourse.getStartdate(), newCourse.getEnddate(), newCourse.getCoursename(), newCourse.getNote(), newCourse.getStatus(), newCourse.getTermid());
 
                         // Goal: have start and end date create alarms
@@ -184,7 +218,7 @@ public class Courses extends AppCompatActivity {
                         }
                         alarm.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pendingIntent);
 
-
+                        Toast.makeText(context, "A notification has been created for your start and end date.", Toast.LENGTH_LONG).show();
 
 
                         finish();

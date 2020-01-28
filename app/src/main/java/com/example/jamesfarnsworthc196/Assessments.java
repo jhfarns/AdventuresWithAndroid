@@ -4,7 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,8 +17,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -85,6 +91,10 @@ public class Assessments extends AppCompatActivity {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Assessments.this);
                 alertDialogBuilder.setView(assessmentView);
 
+                final Calendar c = Calendar.getInstance();
+                final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+                String currentTime = sdf.format(c.getTime());
+
                 final EditText assessmentName = assessmentView.findViewById(R.id.assessmentDialogName);
                 final EditText assessmentType = assessmentView.findViewById(R.id.assessmentDialogType);
                 final EditText assessmentDate = assessmentView.findViewById(R.id.assessmentDialogDate);
@@ -92,7 +102,7 @@ public class Assessments extends AppCompatActivity {
 
                 assessmentName.setText("Assesment Name");
                 assessmentType.setText("Objective or Performance");
-                assessmentDate.setText("SomeDate");
+                assessmentDate.setText(currentTime);
                 assessmentCourseId.setText("1");
 
                 alertDialogBuilder.setCancelable(true).setPositiveButton("Save", new DialogInterface.OnClickListener() {
@@ -104,6 +114,33 @@ public class Assessments extends AppCompatActivity {
                         assessment.setDate(assessmentDate.getText().toString());
                         assessment.setCourseId(Integer.parseInt(assessmentCourseId.getText().toString()));
                         db.insertAssessment(assessment.getType(),assessment.getName(),assessment.getDate(),assessment.getCourseId());
+
+
+                        String startTimeSet = assessmentDate.getText().toString();
+                        try {
+                            c.setTime(sdf.parse(startTimeSet));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                        AlarmManager alarm;
+                        Intent alarmIntent;
+                        PendingIntent pendingIntent;
+                        // You may need to add these _ids to the database with the class so that it can be canceled...
+                        // You are going to need to make two of these ids because of the start and end date...
+                        int _id = (int) System.currentTimeMillis();
+                        // for the calendar you are going
+
+                        alarmIntent = new Intent(Assessments.this, CreateCatcher.class);
+                        alarmIntent.putExtra("createBroadcastAlarm", assessment.getName() + " Goal date is due today!");
+                        pendingIntent = PendingIntent.getBroadcast(Assessments.this, _id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                        alarm = (AlarmManager)getSystemService(ALARM_SERVICE);
+                        alarm.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pendingIntent);
+
+                        Toast.makeText(context, "A notification has been created for your assessment", Toast.LENGTH_LONG).show();
+
+
                         finish();
                         startActivity(getIntent());
                     }

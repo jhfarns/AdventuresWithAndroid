@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -81,14 +82,17 @@ public class ViewSelectedCourse extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_term, menu);
+        // Goal: To add SMS/Email functionality
+        // - add a new view to add a send icon
+        // - add new functionality to the menu so when it is pressed you send an email to the requested email
+        inflater.inflate(R.menu.send_sms, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
-            case R.id.save:
+            case R.id.sendSave:
                 // open dialog box with prepop data
                 LayoutInflater layoutInflaterSave = LayoutInflater.from(getApplicationContext());
                 View view = layoutInflaterSave.inflate(R.layout.coursesave, null);
@@ -134,7 +138,7 @@ public class ViewSelectedCourse extends AppCompatActivity {
                 // close dialog box
                 Toast.makeText(context, "save", Toast.LENGTH_SHORT).show();
                 return true;
-            case R.id.delete:
+            case R.id.sendDelete:
                 // delete term
                 db.deleteCourse(course);
                 // redirect to the parent activity
@@ -142,6 +146,37 @@ public class ViewSelectedCourse extends AppCompatActivity {
                 Intent courseIntent = new Intent(context, Courses.class);
                 startActivity(courseIntent);
                 return true;
+            case R.id.sendSend:
+                LayoutInflater layoutInflaterSend = LayoutInflater.from(getApplicationContext());
+                View viewSend = layoutInflaterSend.inflate(R.layout.notesend, null);
+
+                AlertDialog.Builder alertDialogBuilderSend = new AlertDialog.Builder(ViewSelectedCourse.this);
+                alertDialogBuilderSend.setView(viewSend);
+
+                final EditText phone = viewSend.findViewById(R.id.phoneNumber);
+
+
+                alertDialogBuilderSend.setCancelable(true).setPositiveButton("send", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String phoneNumber  = phone.getText().toString();
+
+                        String message = course.getStatus();
+
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + phoneNumber));
+                        intent.putExtra("sms_body", message);
+                        startActivity(intent);
+                    }
+                }).setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+                AlertDialog alertDialogSend = alertDialogBuilderSend.create();
+                alertDialogSend.show();
+
             default:
                 return super.onOptionsItemSelected(item);
         }
