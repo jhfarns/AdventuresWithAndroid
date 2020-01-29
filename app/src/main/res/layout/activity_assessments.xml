@@ -27,9 +27,15 @@
         android:layout_below="@+id/assessmentType"/>
 
     <TextView
-        android:id="@+id/assessmentCourseName"
+        android:id="@+id/assessmentFinishDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/assessmentDate"/>
+
+    <TextView
+        android:id="@+id/assessmentCourseName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/assessmentFinishDate"/>
 
 </RelativeLayout>

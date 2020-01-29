@@ -51,4 +51,10 @@ android:layout_height="match_parent">
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/selectedCourseMentorNumber" />
+
+    <include android:id="@+id/selectedCourseAssessments"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/selectedCourseMentorEmail"
+        layout="@layout/activity_terms_recyclerview"/>
 </RelativeLayout>

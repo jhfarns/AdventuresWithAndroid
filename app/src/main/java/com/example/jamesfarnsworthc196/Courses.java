@@ -165,7 +165,6 @@ public class Courses extends AppCompatActivity {
                             newCourse.setTermid(Integer.parseInt(courseTermId.getText().toString()));
                         } else {
                             newCourse.setTermid(firstID);
-                            Toast.makeText(context, "Value for term was not numeric. Adding to course ID " + firstID, Toast.LENGTH_LONG).show();
                         }
 
 

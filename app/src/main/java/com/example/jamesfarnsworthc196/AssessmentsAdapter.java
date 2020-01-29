@@ -26,6 +26,7 @@ public class AssessmentsAdapter extends RecyclerView.Adapter<AssessmentsAdapter.
         public TextView assessmentName;
         public TextView assessmenType;
         public TextView assessmentDate;
+        public TextView assessmentEndDate;
         public TextView assessmentCourseName;
 
         public MyViewHolder(View view) {
@@ -33,6 +34,7 @@ public class AssessmentsAdapter extends RecyclerView.Adapter<AssessmentsAdapter.
             assessmentName = view.findViewById(R.id.assessmentName);
             assessmenType = view.findViewById(R.id.assessmentType);
             assessmentDate = view.findViewById(R.id.assessmentDate);
+            assessmentEndDate = view.findViewById(R.id.assessmentFinishDate);
             assessmentCourseName = view.findViewById(R.id.assessmentCourseName);
         }
     }
@@ -57,6 +59,7 @@ public class AssessmentsAdapter extends RecyclerView.Adapter<AssessmentsAdapter.
         holder.assessmentName.setText(assessment.getName());
         holder.assessmenType.setText(assessment.getType());
         holder.assessmentDate.setText(assessment.getDate());
+        holder.assessmentEndDate.setText(assessment.getEndDate());
         holder.assessmentCourseName.setText(Integer.toString(assessment.getCourseId()));
     }
 

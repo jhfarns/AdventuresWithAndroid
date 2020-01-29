@@ -2,6 +2,7 @@ package com.example.jamesfarnsworthc196;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
@@ -23,13 +24,15 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.List;
 
+import Database.Assessment;
 import Database.DatabaseHelper;
 import Database.Course;
+import Database.RecyclerTouchListener;
 
 public class ViewSelectedCourse extends AppCompatActivity {
 
-    private TermsAdapter mAdapter;
-    private List<Course> coursesList = new ArrayList<>();
+    private AssessmentsAdapter mAdapter;
+    private List<Assessment> assessmentList = new ArrayList<>();
     private RecyclerView recyclerView;
     private DatabaseHelper db;
     private Context context = this;
@@ -46,12 +49,35 @@ public class ViewSelectedCourse extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_selected_course);
 
+        recyclerView = findViewById(R.id.recyclerview);
+
         db = new DatabaseHelper(this);
 
         Intent intent = getIntent();
         int id = intent.getIntExtra("selectedCourseId", 1);
         course = db.getCourse(id);
 
+        assessmentList.addAll(db.getAllAssociatedAssessments(course.getId()));
+
+        mAdapter = new AssessmentsAdapter(this, assessmentList);
+        RecyclerView.LayoutManager mLayoutManager= new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setAdapter(mAdapter);
+
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this, recyclerView, new RecyclerTouchListener.ClickListener(){
+            @Override
+            public void onClick(View view, final int position){
+                // load new activity here
+                // pass the database with an intent
+                Intent viewTerm = new Intent(context, ViewSelectedCourseAssessment.class);
+                viewTerm.putExtra("selectedAssessmentId", assessmentList.get(position).getId());
+                int test = assessmentList.get(position).getId();
+                startActivity(viewTerm);
+            }
+            @Override
+            public void onLongClick(View view, int position){
+            }
+        }));
 
         startDate = course.getStartdate();
         endDate = course.getEnddate();

@@ -15,6 +15,9 @@
         <activity android:name=".ViewSelectedCourse" android:parentActivityName=".Courses"><meta-data
             android:name="android.support.PARENT_ACTIVITY"
             android:value=".Terms" /></activity>
+        <activity android:name=".ViewSelectedCourseAssessment" android:parentActivityName=".Courses"><meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".Terms" /></activity>
         <activity android:name=".ViewSelectedTermCourse" android:parentActivityName=".Terms"><meta-data
             android:name="android.support.PARENT_ACTIVITY"
             android:value=".Terms" /></activity>

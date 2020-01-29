@@ -1,9 +1,5 @@
 package com.example.jamesfarnsworthc196;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,14 +13,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import Database.Assessment;
 import Database.DatabaseHelper;
-import Database.Term;
 
-public class ViewSelectedAssessment extends AppCompatActivity {
+public class ViewSelectedCourseAssessment extends AppCompatActivity {
 
     private AssessmentsAdapter mAdapter;
     private List<Assessment> assessmentsList = new ArrayList<>();
@@ -85,7 +84,7 @@ public class ViewSelectedAssessment extends AppCompatActivity {
                 LayoutInflater layoutInflaterSave = LayoutInflater.from(getApplicationContext());
                 View alertDialogViewTermSave = layoutInflaterSave.inflate(R.layout.assessmentsave, null);
 
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ViewSelectedAssessment.this);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ViewSelectedCourseAssessment.this);
                 alertDialogBuilder.setView(alertDialogViewTermSave);
 
                 final EditText assessmentName = alertDialogViewTermSave.findViewById(R.id.assessmentDialogName);

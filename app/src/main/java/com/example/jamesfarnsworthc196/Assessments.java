@@ -39,6 +39,24 @@ public class Assessments extends AppCompatActivity {
     private RecyclerView recyclerView;
     private DatabaseHelper db;
     private Context context = this;
+    private List<Course> courseList = new ArrayList<>();
+
+    public static boolean isNumeric(final String str) {
+
+        // null or empty
+        if (str == null || str.length() == 0) {
+            return false;
+        }
+
+        for (char c : str.toCharArray()) {
+            if (!Character.isDigit(c)) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +100,11 @@ public class Assessments extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
+        courseList.addAll(db.getAllCourses());
+        ListIterator<Course> termsListIterator = courseList.listIterator();
+        List<Integer> termIds = new ArrayList<>();
+        int largestTermId = 0;
+        ListIterator<Integer> termIdsIterator;
 
         switch(item.getItemId()){
             case R.id.create:
@@ -91,6 +114,20 @@ public class Assessments extends AppCompatActivity {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Assessments.this);
                 alertDialogBuilder.setView(assessmentView);
 
+                while(termsListIterator.hasNext()){
+                     Course course = termsListIterator.next();
+                    termIds.add(course.getId());
+                }
+                termIdsIterator = termIds.listIterator();
+
+                while(termIdsIterator.hasNext()){
+                    int nextVal = termIdsIterator.next();
+                    if( nextVal > largestTermId){
+                        largestTermId = nextVal;
+                    }
+                }
+
+                final int firstID = termIds.get(0);
                 final Calendar c = Calendar.getInstance();
                 final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
                 String currentTime = sdf.format(c.getTime());
@@ -98,12 +135,14 @@ public class Assessments extends AppCompatActivity {
                 final EditText assessmentName = assessmentView.findViewById(R.id.assessmentDialogName);
                 final EditText assessmentType = assessmentView.findViewById(R.id.assessmentDialogType);
                 final EditText assessmentDate = assessmentView.findViewById(R.id.assessmentDialogDate);
+                final EditText assessmentEndDate = assessmentView.findViewById(R.id.assessmentDialogFinishDate);
                 final EditText assessmentCourseId = assessmentView.findViewById(R.id.assessmentCourseDialogName);
 
                 assessmentName.setText("Assesment Name");
                 assessmentType.setText("Objective or Performance");
                 assessmentDate.setText(currentTime);
-                assessmentCourseId.setText("1");
+                assessmentEndDate.setText(currentTime);
+                assessmentCourseId.setText("Choose course ID between " +termIds.get(0)+" " + largestTermId);
 
                 alertDialogBuilder.setCancelable(true).setPositiveButton("Save", new DialogInterface.OnClickListener() {
                     @Override
@@ -112,11 +151,20 @@ public class Assessments extends AppCompatActivity {
                         assessment.setName(assessmentName.getText().toString());
                         assessment.setType(assessmentType.getText().toString());
                         assessment.setDate(assessmentDate.getText().toString());
-                        assessment.setCourseId(Integer.parseInt(assessmentCourseId.getText().toString()));
-                        db.insertAssessment(assessment.getType(),assessment.getName(),assessment.getDate(),assessment.getCourseId());
+                        assessment.setEndDate(assessmentEndDate.getText().toString());
 
+
+                        if (isNumeric(assessmentCourseId.getText().toString())) {
+                            assessment.setCourseId(Integer.parseInt(assessmentCourseId.getText().toString()));
+                        } else {
+                            assessment.setCourseId(firstID);
+                        }
+
+                        db.insertAssessment(assessment.getType(),assessment.getName(),assessment.getDate(),assessment.getEndDate(),assessment.getCourseId());
 
                         String startTimeSet = assessmentDate.getText().toString();
+                        String endTimeSet = assessmentEndDate.getText().toString();
+
                         try {
                             c.setTime(sdf.parse(startTimeSet));
                         } catch (ParseException e) {
@@ -138,7 +186,18 @@ public class Assessments extends AppCompatActivity {
                         alarm = (AlarmManager)getSystemService(ALARM_SERVICE);
                         alarm.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pendingIntent);
 
-                        Toast.makeText(context, "A notification has been created for your assessment", Toast.LENGTH_LONG).show();
+                        _id = (int) System.currentTimeMillis();
+                        alarmIntent = new Intent(Assessments.this, CreateCatcher.class);
+                        alarmIntent.putExtra("createBroadcastAlarm", assessment.getName() + " is ending today");
+                        pendingIntent = PendingIntent.getBroadcast(Assessments.this,_id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        try {
+                            c.setTime(sdf.parse(endTimeSet));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        alarm.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pendingIntent);
+
+                        Toast.makeText(context, "A notification has been created for your assessment start and end time", Toast.LENGTH_LONG).show();
 
 
                         finish();

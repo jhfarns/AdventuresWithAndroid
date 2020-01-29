@@ -78,6 +78,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         initVals7.put(Assessment.COLUMN_NAME, "assessment");
         initVals7.put(Assessment.COLUMN_TYPE, "objective");
         initVals7.put(Assessment.COLUMN_DATE, "somedate");
+        initVals7.put(Assessment.COLUMN_END_DATE, "anotherDate");
         initVals7.put(Assessment.COLUMN_COURSE_ID, 1);
         db.insert(Assessment.TABLE_NAME, null, initVals7);
 
@@ -85,6 +86,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         initVals8.put(Assessment.COLUMN_NAME, "assessment2");
         initVals8.put(Assessment.COLUMN_TYPE, "objective2");
         initVals8.put(Assessment.COLUMN_DATE, "somedate2");
+        initVals8.put(Assessment.COLUMN_END_DATE, "anotherDate2");
         initVals8.put(Assessment.COLUMN_COURSE_ID, 2);
         db.insert(Assessment.TABLE_NAME, null, initVals8);
 
@@ -92,6 +94,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         initVals9.put(Assessment.COLUMN_NAME, "assessment3");
         initVals9.put(Assessment.COLUMN_TYPE, "objective3");
         initVals9.put(Assessment.COLUMN_DATE, "somedate3");
+        initVals9.put(Assessment.COLUMN_END_DATE, "anotherDate3");
         initVals9.put(Assessment.COLUMN_COURSE_ID, 3);
         db.insert(Assessment.TABLE_NAME, null, initVals9);
     }
@@ -138,7 +141,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return id;
     }
 
-    public long insertAssessment(String type, String name, String date, int courseId ){
+    public long insertAssessment(String type, String name, String date, String endDate, int courseId ){
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -146,6 +149,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(Assessment.COLUMN_TYPE, type);
         values.put(Assessment.COLUMN_NAME, name);
         values.put(Assessment.COLUMN_DATE, date);
+        values.put(Assessment.COLUMN_END_DATE, endDate);
         values.put(Assessment.COLUMN_COURSE_ID, courseId);
 
         long id = db.insert(Assessment.TABLE_NAME, null, values);
@@ -203,7 +207,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(Assessment.TABLE_NAME,
-                new String[]{Assessment.COLUMN_ID, Assessment.COLUMN_TYPE, Assessment.COLUMN_NAME, Assessment.COLUMN_DATE, Assessment.COLUMN_COURSE_ID},
+                new String[]{Assessment.COLUMN_ID, Assessment.COLUMN_TYPE, Assessment.COLUMN_NAME, Assessment.COLUMN_DATE, Assessment.COLUMN_END_DATE, Assessment.COLUMN_COURSE_ID},
                 Assessment.COLUMN_ID + "=?",
                 new String[]{String.valueOf(id)}, null, null, null, null);
 
@@ -216,8 +220,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cursor.getInt(cursor.getColumnIndex(Assessment.COLUMN_COURSE_ID)),
                 cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_NAME)),
                 cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_TYPE)),
-                cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_DATE))
-
+                cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_DATE)),
+                cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_END_DATE))
         );
 
         return assessment;
@@ -319,11 +323,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if(cursor.moveToFirst()) {
             do {
                 Assessment assessment = new Assessment();
-                assessment.setType(cursor.getString(cursor.getColumnIndex(assessment.COLUMN_TYPE)));
+                assessment.setType(cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_TYPE)));
                 assessment.setName(cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_NAME)));
                 assessment.setDate(cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_DATE)));
+                assessment.setEndDate(cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_END_DATE)));
                 assessment.setCourseId(cursor.getInt(cursor.getColumnIndex(Assessment.COLUMN_COURSE_ID)));
                 assessment.setId(cursor.getInt(cursor.getColumnIndex(Assessment.COLUMN_ID)));
+
+                assessments.add(assessment);
+
+            } while(cursor.moveToNext());
+        }
+
+        db.close();
+
+        return assessments;
+    }
+
+    public List<Assessment> getAllAssociatedAssessments(int courseID) {
+        List<Assessment> assessments = new ArrayList<>();
+
+        String selectQuery = "SELECT * FROM " + Assessment.TABLE_NAME + "WHERE courseid = ?";
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM assessment WHERE courseid = ?", new String[] {Integer.toString(courseID)});
+
+        if(cursor.moveToFirst()) {
+            do {
+                Assessment assessment = new Assessment();
+
+                assessment.setCourseId(cursor.getInt(cursor.getColumnIndex(Assessment.COLUMN_COURSE_ID)));
+                assessment.setDate(cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_DATE)));
+                assessment.setEndDate(cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_END_DATE)));
+                assessment.setId(cursor.getInt(cursor.getColumnIndex(Assessment.COLUMN_ID)));
+                assessment.setName(cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_NAME)));
+                assessment.setType(cursor.getString(cursor.getColumnIndex(Assessment.COLUMN_TYPE)));
 
                 assessments.add(assessment);
 
@@ -401,6 +435,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(Assessment.COLUMN_TYPE, assessment.getType());
         values.put(Assessment.COLUMN_NAME, assessment.getName());
         values.put(Assessment.COLUMN_DATE, assessment.getDate());
+        values.put(Assessment.COLUMN_END_DATE, assessment.getEndDate());
         values.put(Assessment.COLUMN_COURSE_ID, assessment.getCourseId());
 
         return db.update(Assessment.TABLE_NAME, values, Assessment.COLUMN_ID + "=?",

@@ -7,12 +7,14 @@ public class Assessment {
     public static final String COLUMN_TYPE = "type";
     public static final String COLUMN_NAME = "assessmentname";
     public static final String COLUMN_DATE = "date";
+    public static final String COLUMN_END_DATE = "enddate";
 
     private int id;
     private int courseId;
     private String type;
     private String name;
     private String date;
+    private String endDate;
 
     public static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + "("
@@ -20,17 +22,19 @@ public class Assessment {
                     + COLUMN_TYPE + " TEXT,"
                     + COLUMN_NAME + " TEXT,"
                     + COLUMN_DATE + " TEXT,"
+                    + COLUMN_END_DATE + " TEXT,"
                     + COLUMN_COURSE_ID + " INTEGER,"
                     + " FOREIGN KEY (" + COLUMN_COURSE_ID + ") REFERENCES " + Course.TABLE_NAME + "(" + Course.COLUMN_ID + "));";
 
     public Assessment() {}
 
-    public Assessment(int id, int courseId, String name, String type, String date){
+    public Assessment(int id, int courseId, String name, String type, String date, String endDate){
         this.id = id;
         this.courseId = courseId;
         this.type = type;
         this.name = name;
         this.date = date;
+        this.endDate = endDate;
     }
 
     public int getId() {
@@ -53,6 +57,8 @@ public class Assessment {
         return date;
     }
 
+    public String getEndDate() {return endDate;}
+
     public void setId(int id) {
         this.id = id;
     }
@@ -72,5 +78,7 @@ public class Assessment {
     public void setDate(String date) {
         this.date = date;
     }
+
+    public void setEndDate(String endDate) { this.endDate = endDate;}
 
 }
